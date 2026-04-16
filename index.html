@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人成长名片 - 五维成长测评系统</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 导航栏 -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <span class="brand-icon">🌱</span>
+                <span class="brand-text">个人成长名片</span>
+            </div>
+            <div class="nav-links">
+                <button class="nav-link active" data-page="home">首页</button>
+                <button class="nav-link" data-page="assessment">开始测评</button>
+                <button class="nav-link" data-page="history">历史记录</button>
+                <button class="nav-link" data-page="about">关于</button>
+            </div>
+            <div class="nav-actions">
+                <button class="btn-donate" onclick="app.showDonate()">☕ 请作者喝杯咖啡</button>
+                <button class="theme-toggle" onclick="app.toggleTheme()" title="切换主题">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- 首页 -->
+        <main class="page active" id="page-home">
+            <section class="hero">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        <span class="title-icon">✨</span>
+                        发现你的成长力量
+                    </h1>
+                    <p class="hero-subtitle">基于五大优势维度的个人成长测评系统，帮助你全面了解自己的优势与潜能</p>
+                    <div class="hero-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">📊</span>
+                            <span>五维全景</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🎯</span>
+                            <span>27项细分</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">📈</span>
+                            <span>成长追踪</span>
+                        </div>
+                    </div>
+                    <button class="btn-primary btn-start" onclick="app.startAssessment()">
+                        开始测评之旅
+                        <span class="btn-arrow">→</span>
+                    </button>
+                </div>
+                
+                <div class="hero-visual">
+                    <div class="radar-preview">
+                        <div id="preview-chart"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 五大维度介绍 -->
+            <section class="dimensions-section">
+                <h2 class="section-title">五大成长维度</h2>
+                <div class="dimensions-grid">
+                    <div class="dimension-card" data-dimension="cognitive">
+                        <div class="dim-icon">🧠</div>
+                        <h3>认知能力</h3>
+                        <p>感知、理解、分析、判断外部世界的能力</p>
+                        <div class="dim-subcategories">9个子维度</div>
+                    </div>
+                    <div class="dimension-card" data-dimension="empathy">
+                        <div class="dim-icon">❤️</div>
+                        <h3>人际共情</h3>
+                        <p>理解他人、建立连接、维护关系的能力</p>
+                        <div class="dim-subcategories">4个子维度</div>
+                    </div>
+                    <div class="dimension-card" data-dimension="will">
+                        <div class="dim-icon">💪</div>
+                        <h3>意志行动</h3>
+                        <p>驱动自我、克服困难、达成目标的能力</p>
+                        <div class="dim-subcategories">4个子维度</div>
+                    </div>
+                    <div class="dimension-card" data-dimension="leadership">
+                        <div class="dim-icon">👔</div>
+                        <h3>领导职业</h3>
+                        <p>引领团队、职业发展、创造价值的能力</p>
+                        <div class="dim-subcategories">4个子维度</div>
+                    </div>
+                    <div class="dimension-card" data-dimension="transcendence">
+                        <div class="dim-icon">🌟</div>
+                        <h3>超越动力</h3>
+                        <p>追求意义、超越自我、实现价值的能力</p>
+                        <div class="dim-subcategories">6个子维度</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 使用说明 -->
+            <section class="guide-section">
+                <h2 class="section-title">如何使用</h2>
+                <div class="guide-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>选择维度</h4>
+                            <p>从五大维度中选择你想测评的方向</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>完成答题</h4>
+                            <p>每个子维度16道题，按真实情况作答</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>查看结果</h4>
+                            <p>获取雷达图和个性化解读</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>追踪成长</h4>
+                            <p>多次测评对比，见证成长轨迹</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 测评页面 -->
+        <main class="page" id="page-assessment">
+            <div class="assessment-container">
+                <!-- 测评进度 -->
+                <div class="assessment-header">
+                    <div class="progress-info">
+                        <h2 id="assessment-title">选择测评维度</h2>
+                        <p id="assessment-subtitle">请选择你想测评的维度开始</p>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progress-bar"></div>
+                        <span class="progress-text" id="progress-text">0%</span>
+                    </div>
+                </div>
+
+                <!-- 维度选择 -->
+                <div class="dimension-selector" id="dimension-selector">
+                    <button class="dim-select-btn" onclick="app.selectDimension('cognitive')">
+                        <span class="dim-icon">🧠</span>
+                        <span class="dim-name">认知能力</span>
+                        <span class="dim-count">9个子维度 · 144题</span>
+                    </button>
+                    <button class="dim-select-btn" onclick="app.selectDimension('empathy')">
+                        <span class="dim-icon">❤️</span>
+                        <span class="dim-name">人际共情</span>
+                        <span class="dim-count">4个子维度 · 64题</span>
+                    </button>
+                    <button class="dim-select-btn" onclick="app.selectDimension('will')">
+                        <span class="dim-icon">💪</span>
+                        <span class="dim-name">意志行动</span>
+                        <span class="dim-count">4个子维度 · 64题</span>
+                    </button>
+                    <button class="dim-select-btn" onclick="app.selectDimension('leadership')">
+                        <span class="dim-icon">👔</span>
+                        <span class="dim-name">领导职业</span>
+                        <span class="dim-count">4个子维度 · 64题</span>
+                    </button>
+                    <button class="dim-select-btn" onclick="app.selectDimension('transcendence')">
+                        <span class="dim-icon">🌟</span>
+                        <span class="dim-name">超越动力</span>
+                        <span class="dim-count">6个子维度 · 96题</span>
+                    </button>
+                    <button class="dim-select-btn full-test" onclick="app.startFullTest()">
+                        <span class="dim-icon">🎯</span>
+                        <span class="dim-name">完整测评</span>
+                        <span class="dim-count">五大维度 · 全部432题</span>
+                    </button>
+                </div>
+
+                <!-- 答题区域 -->
+                <div class="question-area" id="question-area" style="display: none;">
+                    <button class="btn-back-dimension" onclick="app.backToDimension()">
+                        ← 返回选择维度
+                    </button>
+                    <div class="question-card">
+                        <div class="question-header">
+                            <span class="question-category" id="question-category"></span>
+                            <span class="question-index" id="question-index"></span>
+                        </div>
+                        <div class="question-text" id="question-text"></div>
+                        <div class="question-options" id="question-options"></div>
+                    </div>
+                    <div class="question-nav">
+                        <button class="btn-secondary" id="btn-prev" onclick="app.prevQuestion()">上一题</button>
+                        <button class="btn-secondary" id="btn-next" onclick="app.nextQuestion()">下一题</button>
+                        <button class="btn-primary" id="btn-submit" onclick="app.submitAssessment()" style="display: none;">提交测评</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 结果页面 -->
+        <main class="page" id="page-result">
+            <div class="result-container">
+                <div class="result-header">
+                    <h2>测评结果</h2>
+                    <p id="result-date"></p>
+                </div>
+                
+                <div class="result-chart-container">
+                    <div id="result-chart"></div>
+                </div>
+
+                <div class="result-scores" id="result-scores"></div>
+
+                <div class="result-analysis" id="result-analysis"></div>
+
+                <div class="result-actions">
+                    <button class="btn-secondary" onclick="app.shareResult()">分享结果</button>
+                    <button class="btn-primary" onclick="app.startAssessment()">再次测评</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- 历史记录页面 -->
+        <main class="page" id="page-history">
+            <div class="history-container">
+                <h2 class="section-title">测评历史</h2>
+                <div class="history-list" id="history-list">
+                    <div class="empty-state">
+                        <span class="empty-icon">📝</span>
+                        <p>暂无测评记录</p>
+                        <button class="btn-primary" onclick="app.startAssessment()">开始首次测评</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 关于页面 -->
+        <main class="page" id="page-about">
+            <div class="about-container">
+                <h2>关于本测评系统</h2>
+                <div class="about-content">
+                    <section class="about-section">
+                        <h3>📖 测评说明</h3>
+                        <p>本测评系统基于五大优势维度理论，帮助你全面了解自己在认知、人际共情、意志行动、领导职业、超越动力五个方面的优势与潜能。</p>
+                    </section>
+                    <section class="about-section">
+                        <h3>📋 测评维度</h3>
+                        <ul>
+                            <li><strong>认知能力</strong>：注意力、观察力、记忆力、思维力、创造力等</li>
+                            <li><strong>人际共情</strong>：理解他人、社会感知、关系建立、共情能力</li>
+                            <li><strong>意志行动</strong>：自我控制、目标执行、抗压能力、坚持力</li>
+                            <li><strong>领导职业</strong>：领导力、团队协作、职业发展、决策能力</li>
+                            <li><strong>超越动力</strong>：意义追寻、自我超越、价值实现、使命驱动</li>
+                        </ul>
+                    </section>
+                    <section class="about-section">
+                        <h3>⚙️ 技术说明</h3>
+                        <p>本系统采用纯前端实现，所有数据存储在浏览器本地，保护你的隐私安全。</p>
+                    </section>
+                    <section class="about-section disclaimer">
+                        <h3>⚠️ 免责声明</h3>
+                        <p>本工具仅用于个人成长自我认知，不作为心理医疗诊断依据。测评结果仅供参考，不定义个人优势或劣势。如有心理困扰，请寻求专业帮助。</p>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        <!-- 打赏弹窗 -->
+        <div class="modal" id="donate-modal" onclick="app.closeDonateOnBackdrop(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <button class="modal-close" onclick="app.closeDonate()">×</button>
+                <h3>☕ 支持一下</h3>
+                <p class="donate-desc">您的支持是我继续维护的动力</p>
+                <div class="donate-options" id="donate-options">
+                    <button class="donate-option" onclick="app.selectDonate('9.9')">
+                        <span class="donate-amount">¥9.9</span>
+                        <span class="donate-label">小额支持</span>
+                    </button>
+                    <button class="donate-option" onclick="app.selectDonate('19.9')">
+                        <span class="donate-amount">¥19.9</span>
+                        <span class="donate-label">咖啡一杯</span>
+                    </button>
+                    <button class="donate-option" onclick="app.selectDonate('29.9')">
+                        <span class="donate-amount">¥29.9</span>
+                        <span class="donate-label">表达感谢</span>
+                    </button>
+                    <button class="donate-option" onclick="app.selectDonate('custom')">
+                        <span class="donate-amount">自定义</span>
+                        <span class="donate-label">随意打赏</span>
+                    </button>
+                </div>
+                <div class="donate-qr" id="donate-qr-container" style="display: none;">
+                    <img src="" alt="收款码" id="donate-qr-image" onerror="app.handleImageError(this)" />
+                    <p class="donate-hint">长按或保存图片扫码打赏</p>
+                </div>
+                <div class="donate-back" id="donate-back" style="display: none;">
+                    <button class="btn-secondary" onclick="app.backToOptions()">← 返回选择金额</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>© <span id="current-year"></span> 个人成长名片 · 基于五大优势维度理论</p>
+            <p class="footer-links">
+                <a href="#" onclick="app.showPage('about')">关于</a>
+                <a href="#" onclick="app.showDonate()">支持</a>
+            </p>
+        </footer>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
