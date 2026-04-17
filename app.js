@@ -602,43 +602,44 @@ const app = {
             }
         });
 
-        // 添加子维度详细得分和建议（仅单维度测评时显示）
-        if (this.state.selectedDimension !== 'full' && this.state.selectedDimension) {
-            const dim = AssessmentData.dimensions[this.state.selectedDimension];
-            if (dim) {
-                analysisHtml += '<h3>📋 子维度详情</h3>';
-                
-                dim.subcategories.forEach(subId => {
-                    const sub = AssessmentData.subcategories[subId];
-                    const subScore = this.state.scores?.subcategories?.[subId];
-                    if (sub && subScore !== undefined) {
-                        const subLevel = subScore >= 75 ? '优势' : subScore >= 50 ? '良好' : '待提升';
-                        const subLevelKey = subScore >= 75 ? 'high' : subScore >= 50 ? 'medium' : 'low';
-                        
-                        // 获取子维度建议
-                        const subAdvice = AssessmentData.subcategoryAdvice?.[subId]?.[subLevelKey];
-                        
-                        analysisHtml += `
-                            <div class="sub-dimension-card">
-                                <div class="sub-dimension-header">
-                                    <span class="sub-name">${sub.name}</span>
-                                    <span class="sub-score-badge ${subLevelKey}">${subScore}分 - ${subLevel}</span>
-                                </div>
-                                ${subAdvice ? `
-                                    <div class="sub-advice">
-                                        <p class="sub-advice-title">${subAdvice.title}</p>
-                                        <p class="sub-advice-content">${subAdvice.content}</p>
-                                        ${subAdvice.practice ? `
-                                            <p class="sub-advice-practice">🎯 <strong>具体练习：</strong>${subAdvice.practice}</p>
-                                        ` : ''}
-                                    </div>
-                                ` : ''}
+        // 添加子维度详细得分和建议
+        const targetDimensions = this.state.selectedDimension && this.state.selectedDimension !== 'full'
+            ? [AssessmentData.dimensions[this.state.selectedDimension]].filter(Boolean)
+            : Object.values(AssessmentData.dimensions);
+
+        analysisHtml += '<h3>📋 子维度详情</h3>';
+
+        targetDimensions.forEach(dim => {
+            analysisHtml += `<div class="dimension-group-header">${dim.icon} ${dim.name}</div>`;
+
+            dim.subcategories.forEach(subId => {
+                const sub = AssessmentData.subcategories[subId];
+                const subScore = this.state.scores?.subcategories?.[subId];
+                if (sub && subScore !== undefined) {
+                    const subLevel = subScore >= 75 ? '优势' : subScore >= 50 ? '良好' : '待提升';
+                    const subLevelKey = subScore >= 75 ? 'high' : subScore >= 50 ? 'medium' : 'low';
+                    const subAdvice = AssessmentData.subcategoryAdvice?.[subId]?.[subLevelKey];
+
+                    analysisHtml += `
+                        <div class="sub-dimension-card">
+                            <div class="sub-dimension-header">
+                                <span class="sub-name">${sub.name}</span>
+                                <span class="sub-score-badge ${subLevelKey}">${subScore}分 - ${subLevel}</span>
                             </div>
-                        `;
-                    }
-                });
-            }
-        }
+                            ${subAdvice ? `
+                                <div class="sub-advice">
+                                    <p class="sub-advice-title">${subAdvice.title}</p>
+                                    <p class="sub-advice-content">${subAdvice.content}</p>
+                                    ${subAdvice.practice ? `
+                                        <p class="sub-advice-practice">🎯 <strong>具体练习：</strong>${subAdvice.practice}</p>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+            });
+        });
 
         document.getElementById('result-analysis').innerHTML = analysisHtml;
     },

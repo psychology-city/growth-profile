@@ -700,6 +700,18 @@ body {
     border-bottom: none;
 }
 
+/* 子维度分组标题 */
+.dimension-group-header {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 1.5rem 0 0.75rem 0;
+    padding: 0.4rem 0.8rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--primary-color);
+}
+
 /* 子维度卡片样式 */
 .sub-dimension-card {
     background: var(--bg-secondary);
