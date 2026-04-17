@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>功能测试 - 个人成长名片</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        h2 { color: #6366f1; border-bottom: 2px solid #6366f1; padding-bottom: 10px; }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .info { color: #3b82f6; }
+        pre {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .hobby-card, .job-card, .boost-card {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .boost-card { border-left: 4px solid #f59e0b; }
+        .stars { color: #f59e0b; }
+    </style>
+</head>
+<body>
+    <h1>🧪 个人成长名片 - 功能测试</h1>
+    
+    <div class="test-section">
+        <h2>1. 数据加载测试</h2>
+        <div id="data-test">测试中...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 兴趣爱好推荐测试</h2>
+        <div id="hobby-test">测试中...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 工作推荐测试</h2>
+        <div id="job-test">测试中...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. 低分维度培养推荐测试</h2>
+        <div id="boost-test">测试中...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. 测试总结</h2>
+        <div id="summary">等待测试完成...</div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="mapping.js"></script>
+    <script>
+        // 模拟测评分数
+        const mockScores = {
+            dimensions: {
+                cognitive: 75,
+                interpersonal: 45,
+                volitional: 60,
+                leadership: 35,
+                transcendent: 80
+            },
+            subDimensions: {
+                '注意力': 70,
+                '思维与洞察力': 75,
+                '好奇心': 80,
+                '意志力': 40,
+                '自我管控': 35,
+                '目标推进': 55,
+                '抗压': 45,
+                '共情内核': 50,
+                '协作沟通': 45,
+                '魅力调节因子': 30,
+                '超越信念': 85,
+                '自我超越': 78
+            }
+        };
+
+        let testResults = {
+            dataLoad: false,
+            hobbyRecommend: false,
+            jobRecommend: false,
+            boostRecommend: false
+        };
+
+        // 测试 1: 数据加载
+        function testDataLoad() {
+            const el = document.getElementById('data-test');
+            let html = '';
+            
+            try {
+                // 检查 mapping 数据
+                if (typeof growthMapping === 'undefined') {
+                    throw new Error('growthMapping 未定义');
+                }
+                
+                const hobbyCount = Object.keys(growthMapping.hobbies).length;
+                const jobCount = Object.keys(growthMapping.jobs).length;
+                const dimBoostCount = Object.keys(growthMapping.dimBoostHobbies).length;
+                
+                html = `<p class="success">✅ 数据加载成功</p>
+                        <ul>
+                            <li>兴趣爱好: ${hobbyCount} 个</li>
+                            <li>工作岗位: ${jobCount} 个</li>
+                            <li>低分培养维度: ${dimBoostCount} 个</li>
+                        </ul>`;
+                
+                // 检查每个爱好是否有必需字段
+                let missingFields = [];
+                Object.entries(growthMapping.hobbies).forEach(([name, data]) => {
+                    if (!data.boostDims) missingFields.push(name + ' 缺少 boostDims');
+                    if (!data.boostEffect) missingFields.push(name + ' 缺少 boostEffect');
+                    if (!data.practiceTip) missingFields.push(name + ' 缺少 practiceTip');
+                });
+                
+                if (missingFields.length > 0) {
+                    html += `<p class="error">⚠️ 字段缺失: ${missingFields.slice(0, 3).join(', ')}${missingFields.length > 3 ? '...' : ''}</p>`;
+                } else {
+                    html += `<p class="success">✅ 所有爱好字段完整</p>`;
+                }
+                
+                testResults.dataLoad = true;
+            } catch (e) {
+                html = `<p class="error">❌ 数据加载失败: ${e.message}</p>`;
+            }
+            
+            el.innerHTML = html;
+        }
+
+        // 测试 2: 兴趣爱好推荐
+        function testHobbyRecommend() {
+            const el = document.getElementById('hobby-test');
+            let html = '';
+            
+            try {
+                // 找高分维度
+                const highScoreDims = [];
+                Object.entries(mockScores.subDimensions).forEach(([dim, score]) => {
+                    if (score >= 60) {
+                        highScoreDims.push({ dim, score });
+                    }
+                });
+                
+                // 找匹配的爱好
+                const matchedHobbies = [];
+                Object.entries(growthMapping.hobbies).forEach(([name, data]) => {
+                    const matchedDims = data.coreDims.filter(d => 
+                        mockScores.subDimensions[d] >= 60
+                    );
+                    if (matchedDims.length > 0) {
+                        matchedHobbies.push({
+                            name,
+                            category: data.category,
+                            matchedDims,
+                            score: matchedDims.length
+                        });
+                    }
+                });
+                
+                matchedHobbies.sort((a, b) => b.score - a.score);
+                
+                html = `<p class="success">✅ 兴趣爱好推荐功能正常</p>`;
+                html += `<p>高分维度: ${highScoreDims.map(d => d.dim + '(' + d.score + ')').join(', ')}</p>`;
+                html += `<p>匹配的爱好 (${matchedHobbies.length} 个):</p>`;
+                
+                matchedHobbies.slice(0, 5).forEach(h => {
+                    html += `<div class="hobby-card">
+                        <strong>${h.name}</strong> <span class="info">[${h.category}]</span><br>
+                        匹配维度: ${h.matchedDims.join(', ')}
+                    </div>`;
+                });
+                
+                testResults.hobbyRecommend = true;
+            } catch (e) {
+                html = `<p class="error">❌ 测试失败: ${e.message}</p>`;
+            }
+            
+            el.innerHTML = html;
+        }
+
+        // 测试 3: 工作推荐
+        function testJobRecommend() {
+            const el = document.getElementById('job-test');
+            let html = '';
+            
+            try {
+                const matchedJobs = [];
+                Object.entries(growthMapping.jobs).forEach(([name, data]) => {
+                    const matchedDims = data.coreDims.filter(d => 
+                        mockScores.subDimensions[d] >= 60
+                    );
+                    if (matchedDims.length > 0) {
+                        matchedJobs.push({
+                            name,
+                            category: data.category,
+                            matchedDims,
+                            score: matchedDims.length
+                        });
+                    }
+                });
+                
+                matchedJobs.sort((a, b) => b.score - a.score);
+                
+                html = `<p class="success">✅ 工作推荐功能正常</p>`;
+                html += `<p>匹配的工作 (${matchedJobs.length} 个):</p>`;
+                
+                matchedJobs.slice(0, 5).forEach(j => {
+                    html += `<div class="job-card">
+                        <strong>${j.name}</strong> <span class="info">[${j.category}]</span><br>
+                        关键维度: ${j.matchedDims.join(', ')}
+                    </div>`;
+                });
+                
+                testResults.jobRecommend = true;
+            } catch (e) {
+                html = `<p class="error">❌ 测试失败: ${e.message}</p>`;
+            }
+            
+            el.innerHTML = html;
+        }
+
+        // 测试 4: 低分维度培养推荐
+        function testBoostRecommend() {
+            const el = document.getElementById('boost-test');
+            let html = '';
+            
+            try {
+                // 找低分维度
+                const lowScoreDims = [];
+                Object.entries(mockScores.subDimensions).forEach(([dim, score]) => {
+                    if (score < 50) {
+                        lowScoreDims.push({ dim, score });
+                    }
+                });
+                
+                html = `<p class="success">✅ 低分维度培养推荐功能正常</p>`;
+                html += `<p>低分维度: ${lowScoreDims.map(d => d.dim + '(' + d.score + ')').join(', ')}</p>`;
+                
+                // 找可提升的爱好
+                const boostHobbies = [];
+                lowScoreDims.forEach(({ dim }) => {
+                    if (growthMapping.dimBoostHobbies[dim]) {
+                        growthMapping.dimBoostHobbies[dim].forEach(item => {
+                            const existing = boostHobbies.find(h => h.name === item.hobby);
+                            if (existing) {
+                                existing.dims.push({ dim, effect: item.effect });
+                                existing.totalEffect += item.effect;
+                            } else {
+                                boostHobbies.push({
+                                    name: item.hobby,
+                                    dims: [{ dim, effect: item.effect }],
+                                    totalEffect: item.effect,
+                                    hobbyData: growthMapping.hobbies[item.hobby]
+                                });
+                            }
+                        });
+                    }
+                });
+                
+                boostHobbies.sort((a, b) => b.totalEffect - a.totalEffect);
+                
+                html += `<p>推荐的培养爱好 (${boostHobbies.length} 个):</p>`;
+                
+                boostHobbies.slice(0, 5).forEach(h => {
+                    const stars = '★'.repeat(Math.round(h.totalEffect / h.dims.length)) + '☆'.repeat(5 - Math.round(h.totalEffect / h.dims.length));
+                    html += `<div class="boost-card">
+                        <strong>${h.name}</strong> <span class="info">[${h.hobbyData?.category || '未知'}]</span><br>
+                        <span class="stars">${stars}</span> 提升效果<br>
+                        可提升: ${h.dims.map(d => d.dim + '(' + d.effect + '星)').join(', ')}<br>
+                        <small>${h.hobbyData?.practiceTip || '暂无练习建议'}</small>
+                    </div>`;
+                });
+                
+                testResults.boostRecommend = true;
+            } catch (e) {
+                html = `<p class="error">❌ 测试失败: ${e.message}</p>`;
+                console.error(e);
+            }
+            
+            el.innerHTML = html;
+        }
+
+        // 显示测试总结
+        function showSummary() {
+            const el = document.getElementById('summary');
+            const passed = Object.values(testResults).filter(v => v).length;
+            const total = Object.keys(testResults).length;
+            
+            let html = `<p>测试结果: <strong class="${passed === total ? 'success' : 'error'}">${passed}/${total} 通过</strong></p>`;
+            html += '<ul>';
+            html += `<li>数据加载: ${testResults.dataLoad ? '<span class="success">✅ 通过</span>' : '<span class="error">❌ 失败</span>'}</li>`;
+            html += `<li>兴趣爱好推荐: ${testResults.hobbyRecommend ? '<span class="success">✅ 通过</span>' : '<span class="error">❌ 失败</span>'}</li>`;
+            html += `<li>工作推荐: ${testResults.jobRecommend ? '<span class="success">✅ 通过</span>' : '<span class="error">❌ 失败</span>'}</li>`;
+            html += `<li>低分培养推荐: ${testResults.boostRecommend ? '<span class="success">✅ 通过</span>' : '<span class="error">❌ 失败</span>'}</li>`;
+            html += '</ul>';
+            
+            if (passed === total) {
+                html += '<p class="success" style="font-size: 1.2em;">🎉 所有测试通过！网页功能正常。</p>';
+            } else {
+                html += '<p class="error" style="font-size: 1.2em;">⚠️ 部分测试未通过，请检查控制台错误。</p>';
+            }
+            
+            el.innerHTML = html;
+        }
+
+        // 运行所有测试
+        window.onload = function() {
+            setTimeout(() => {
+                testDataLoad();
+                testHobbyRecommend();
+                testJobRecommend();
+                testBoostRecommend();
+                showSummary();
+            }, 500);
+        };
+    </script>
+</body>
+</html>

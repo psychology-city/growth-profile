@@ -1238,3 +1238,270 @@ body {
         width: 100%;
     }
 }
+
+/* ==================== 兴趣爱好推荐样式 ==================== */
+.hobby-recommendations {
+    margin: 1.5rem 0;
+}
+
+.recommendation-intro {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.hobby-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    transition: all var(--transition-normal);
+}
+
+.hobby-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+}
+
+.hobby-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.hobby-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.hobby-category {
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    background: var(--primary-light);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+}
+
+.hobby-dims {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.hobby-dims .dim-label {
+    color: var(--text-muted);
+}
+
+.hobby-advice {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--success-color);
+}
+
+/* ==================== 工作推荐样式 ==================== */
+.job-recommendations {
+    margin: 1.5rem 0;
+}
+
+.job-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    transition: all var(--transition-normal);
+}
+
+.job-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+}
+
+.job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.job-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.job-category {
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    background: var(--primary-light);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+}
+
+.job-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+.job-dims {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.job-dims .dim-label {
+    color: var(--text-muted);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .hobby-header,
+    .job-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .hobby-category,
+    .job-category {
+        align-self: flex-start;
+    }
+}
+
+/* ==================== 低分维度培养推荐样式 ==================== */
+.boost-recommendations {
+    margin: 1.5rem 0;
+}
+
+.boost-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    transition: all var(--transition-normal);
+    border-left: 4px solid var(--success-color);
+}
+
+.boost-card.low {
+    border-left-color: var(--warning-color);
+    background: linear-gradient(to right, rgba(245, 158, 11, 0.05), transparent);
+}
+
+.boost-card.medium {
+    border-left-color: var(--primary-color);
+}
+
+.boost-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.boost-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.boost-hobby {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.boost-category {
+    font-size: 0.8rem;
+    color: var(--success-color);
+    background: rgba(16, 185, 129, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+}
+
+.boost-target {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.boost-target .target-label {
+    color: var(--text-muted);
+}
+
+.boost-target .target-dim {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.boost-target .target-score {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.boost-effect {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.boost-effect .effect-label {
+    color: var(--text-muted);
+}
+
+.boost-effect .effect-stars {
+    color: var(--warning-color);
+    letter-spacing: 2px;
+}
+
+.boost-reason {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.5rem;
+}
+
+.boost-practice {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    padding: 0.5rem;
+    background: rgba(99, 102, 241, 0.05);
+    border-radius: var(--radius-sm);
+    line-height: 1.6;
+}
+
+.boost-practice .practice-label {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* 低分提示样式 */
+.boost-card.low .boost-target .target-score {
+    color: var(--warning-color);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .boost-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .boost-category {
+        align-self: flex-start;
+    }
+    
+    .boost-practice {
+        font-size: 0.8rem;
+    }
+}

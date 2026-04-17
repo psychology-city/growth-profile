@@ -641,7 +641,216 @@ const app = {
             });
         });
 
+        // 添加兴趣爱好推荐
+        analysisHtml += this.generateHobbyRecommendations();
+        
+        // 添加工作推荐
+        analysisHtml += this.generateJobRecommendations();
+        
+        // 添加低分维度培养推荐
+        analysisHtml += this.generateLowScoreRecommendations();
+
         document.getElementById('result-analysis').innerHTML = analysisHtml;
+    },
+
+    // 生成兴趣爱好推荐
+    generateHobbyRecommendations() {
+        if (!this.state.scores?.subcategories) return '';
+        
+        const subScores = this.state.scores.subcategories;
+        let recommendedHobbies = [];
+        
+        // 根据高分子维度推荐兴趣爱好
+        Object.entries(subScores).forEach(([subId, score]) => {
+            if (score >= 60 && growthMapping.dimToHobbies[subId]) {
+                growthMapping.dimToHobbies[subId].forEach(hobbyName => {
+                    const hobby = growthMapping.hobbies[hobbyName];
+                    if (hobby && !recommendedHobbies.find(h => h.name === hobbyName)) {
+                        recommendedHobbies.push({
+                            name: hobbyName,
+                            category: hobby.category,
+                            score: score,
+                            coreDims: hobby.coreDims,
+                            advice: hobby.growthAdvice
+                        });
+                    }
+                });
+            }
+        });
+        
+        // 按得分排序，取前8个
+        recommendedHobbies.sort((a, b) => b.score - a.score);
+        recommendedHobbies = recommendedHobbies.slice(0, 8);
+        
+        if (recommendedHobbies.length === 0) return '';
+        
+        let html = '<h3>🎯 推荐兴趣爱好</h3><div class="hobby-recommendations">';
+        html += '<p class="recommendation-intro">根据您的测评结果，以下兴趣爱好与您的优势维度高度匹配：</p>';
+        
+        recommendedHobbies.forEach(hobby => {
+            html += `
+                <div class="hobby-card">
+                    <div class="hobby-header">
+                        <span class="hobby-name">${hobby.name}</span>
+                        <span class="hobby-category">${hobby.category}</span>
+                    </div>
+                    <div class="hobby-dims">
+                        <span class="dim-label">核心维度：</span>
+                        ${hobby.coreDims.slice(0, 3).join('、')}
+                    </div>
+                    <div class="hobby-advice">💡 ${hobby.advice}</div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        return html;
+    },
+
+    // 生成工作推荐
+    generateJobRecommendations() {
+        if (!this.state.scores?.subcategories) return '';
+        
+        const subScores = this.state.scores.subcategories;
+        let recommendedJobs = [];
+        
+        // 根据高分子维度推荐工作
+        Object.entries(subScores).forEach(([subId, score]) => {
+            if (score >= 60 && growthMapping.dimToJobs[subId]) {
+                growthMapping.dimToJobs[subId].forEach(jobName => {
+                    const job = growthMapping.jobs[jobName];
+                    if (job && !recommendedJobs.find(j => j.name === jobName)) {
+                        recommendedJobs.push({
+                            name: jobName,
+                            category: job.category,
+                            score: score,
+                            coreDims: job.coreDims,
+                            description: job.description
+                        });
+                    }
+                });
+            }
+        });
+        
+        // 按得分排序，取前6个
+        recommendedJobs.sort((a, b) => b.score - a.score);
+        recommendedJobs = recommendedJobs.slice(0, 6);
+        
+        if (recommendedJobs.length === 0) return '';
+        
+        let html = '<h3>💼 推荐工作方向</h3><div class="job-recommendations">';
+        html += '<p class="recommendation-intro">根据您的测评结果，以下工作方向与您的优势维度高度匹配：</p>';
+        
+        recommendedJobs.forEach(job => {
+            html += `
+                <div class="job-card">
+                    <div class="job-header">
+                        <span class="job-name">${job.name}</span>
+                        <span class="job-category">${job.category}</span>
+                    </div>
+                    <div class="job-description">${job.description}</div>
+                    <div class="job-dims">
+                        <span class="dim-label">关键维度：</span>
+                        ${job.coreDims.slice(0, 4).join('、')}
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        return html;
+    },
+
+    // 生成低分维度培养推荐（基于兴趣爱好提升弱势维度）
+    generateLowScoreRecommendations() {
+        if (!this.state.scores?.subcategories) return '';
+        
+        const subScores = this.state.scores.subcategories;
+        let lowScoreRecommendations = [];
+        
+        // 找出低分维度（<50分）
+        Object.entries(subScores).forEach(([subId, score]) => {
+            if (score < 50 && growthMapping.dimBoostHobbies[subId]) {
+                const boostHobbies = growthMapping.dimBoostHobbies[subId];
+                if (boostHobbies && boostHobbies.length > 0) {
+                    // 取效果最好的前2个兴趣爱好
+                    const topHobbies = [...boostHobbies]
+                        .sort((a, b) => b.effect - a.effect)
+                        .slice(0, 2);
+                    
+                    topHobbies.forEach(item => {
+                        const hobby = growthMapping.hobbies[item.hobby];
+                        if (hobby) {
+                            lowScoreRecommendations.push({
+                                dimension: subId,
+                                dimScore: score,
+                                hobbyName: item.hobby,
+                                category: hobby.category,
+                                effect: item.effect,
+                                reason: item.reason,
+                                practiceTip: hobby.practiceTip
+                            });
+                        }
+                    });
+                }
+            }
+        });
+        
+        // 按效果和维度得分排序，优先推荐效果最好的
+        lowScoreRecommendations.sort((a, b) => {
+            // 先按效果排序，效果相同按维度得分（更低的优先）
+            if (b.effect !== a.effect) return b.effect - a.effect;
+            return a.dimScore - b.dimScore;
+        });
+        
+        // 去重（同一个兴趣爱好只推荐一次）
+        const seenHobbies = new Set();
+        lowScoreRecommendations = lowScoreRecommendations.filter(item => {
+            if (seenHobbies.has(item.hobbyName)) return false;
+            seenHobbies.add(item.hobbyName);
+            return true;
+        });
+        
+        // 取前6个
+        lowScoreRecommendations = lowScoreRecommendations.slice(0, 6);
+        
+        if (lowScoreRecommendations.length === 0) return '';
+        
+        let html = '<h3>🌱 维度提升建议</h3><div class="boost-recommendations">';
+        html += '<p class="recommendation-intro">根据您的测评结果，以下兴趣爱好可以帮助您培养和提升相对薄弱的维度：</p>';
+        
+        lowScoreRecommendations.forEach(item => {
+            const effectStars = '★'.repeat(item.effect) + '☆'.repeat(5 - item.effect);
+            const levelClass = item.dimScore < 30 ? 'low' : 'medium';
+            
+            html += `
+                <div class="boost-card ${levelClass}">
+                    <div class="boost-header">
+                        <span class="boost-hobby">${item.hobbyName}</span>
+                        <span class="boost-category">${item.category}</span>
+                    </div>
+                    <div class="boost-target">
+                        <span class="target-label">🎯 可提升：</span>
+                        <span class="target-dim">${item.dimension}</span>
+                        <span class="target-score">（当前 ${item.dimScore} 分）</span>
+                    </div>
+                    <div class="boost-effect">
+                        <span class="effect-label">提升效果：</span>
+                        <span class="effect-stars">${effectStars}</span>
+                    </div>
+                    <div class="boost-reason">💡 ${item.reason}</div>
+                    ${item.practiceTip ? `
+                        <div class="boost-practice">
+                            <span class="practice-label">📝 入门建议：</span>
+                            ${item.practiceTip}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        return html;
     },
 
     // 渲染历史记录
